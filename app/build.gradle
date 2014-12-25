@@ -5,6 +5,7 @@ android {
     buildToolsVersion "21.1.2"
 
     defaultConfig {
+        useJack true
         applicationId "com.pelmers.simpletodo"
         minSdkVersion 15
         targetSdkVersion 21
