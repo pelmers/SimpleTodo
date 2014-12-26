@@ -1,7 +1,7 @@
 package com.pelmers.simpletodo;
 
 /**
- * Encapsulate info about each todo item
+ * Encapsulate info about each item
  */
 public class TodoItem {
     // the text of the item
