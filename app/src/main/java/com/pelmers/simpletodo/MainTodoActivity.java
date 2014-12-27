@@ -5,7 +5,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -39,7 +38,6 @@ public class MainTodoActivity extends ActionBarActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Load up the todoLists from storage
-        loadTodoLists();
         setContentView(R.layout.activity_main_todo);
         mTitle = getTitle();
         initializeDrawer();
@@ -63,6 +61,8 @@ public class MainTodoActivity extends ActionBarActivity
      * Load up lists from the device memory
      */
     private void loadTodoLists() {
+        if (todoLists != null)
+            return;
         todoLists = new HashMap<>();
     }
 
@@ -70,16 +70,13 @@ public class MainTodoActivity extends ActionBarActivity
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getSupportFragmentManager();
-        if (todoLists.get(position) == null)
-            todoLists.put(position, new ArrayList<TodoItem>());
-        List<TodoItem> selectedList = todoLists.get(position);
-        currentFragment = TodoListFragment.newInstance(position, selectedList);
+        currentFragment = TodoListFragment.newInstance(position);
         fragmentManager.beginTransaction()
                 .replace(R.id.container, currentFragment)
                 .commit();
     }
 
-    public void onSectionAttached(int number) {
+    public void onListAttached(int number) {
         if (mNavigationDrawerFragment != null)
             mTitle = mNavigationDrawerFragment.getListTitle(number);
         setTitle(mTitle);
@@ -122,5 +119,12 @@ public class MainTodoActivity extends ActionBarActivity
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public List<TodoItem> getTodoList(int number) {
+        loadTodoLists();
+        if (todoLists.get(number) == null)
+            todoLists.put(number, new ArrayList<TodoItem>());
+        return todoLists.get(number);
     }
 }

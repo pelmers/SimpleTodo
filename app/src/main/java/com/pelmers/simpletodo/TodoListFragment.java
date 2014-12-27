@@ -30,9 +30,8 @@ public class TodoListFragment extends Fragment {
      * Returns a new instance of this fragment for the given section
      * number.
      */
-    public static TodoListFragment newInstance(int sectionNumber, List<TodoItem> todoItems) {
+    public static TodoListFragment newInstance(int sectionNumber) {
         TodoListFragment fragment = new TodoListFragment();
-        fragment.setTodoItems(todoItems);
         Bundle args = new Bundle();
         args.putInt(ARG_SECTION_NUMBER, sectionNumber);
         fragment.setArguments(args);
@@ -47,14 +46,12 @@ public class TodoListFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main_todo, container, false);
         ListView todoListView = (ListView) rootView.findViewById(R.id.currentTodoList);
-        // if this is our first time here, initialize the list
         todoListAdapter = new ArrayAdapter<>(
                 getActivity(),
                 android.R.layout.simple_list_item_activated_1,
                 android.R.id.text1,
                 todoItems);
         todoListView.setAdapter(todoListAdapter);
-
         return rootView;
     }
 
@@ -66,8 +63,10 @@ public class TodoListFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        ((MainTodoActivity) activity).onSectionAttached(
-                getArguments().getInt(ARG_SECTION_NUMBER));
+        MainTodoActivity mainActivity = (MainTodoActivity) activity;
+        int number = getArguments().getInt(ARG_SECTION_NUMBER);
+        setTodoItems(mainActivity.getTodoList(number));
+        mainActivity.onListAttached(number);
     }
 
     public void setTodoItems(List<TodoItem> todoItems) {
