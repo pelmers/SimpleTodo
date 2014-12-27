@@ -10,9 +10,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 public class MainTodoActivity extends ActionBarActivity
@@ -30,7 +28,7 @@ public class MainTodoActivity extends ActionBarActivity
     private CharSequence mTitle;
 
     // map of index in the nav bar to the list of items in the list
-    private Map<Integer, List<TodoItem>> todoLists;
+    private List<List<TodoItem>> todoLists;
     // the currently selected to do list fragment
     private TodoListFragment currentFragment;
 
@@ -63,7 +61,7 @@ public class MainTodoActivity extends ActionBarActivity
     private void loadTodoLists() {
         if (todoLists != null)
             return;
-        todoLists = new HashMap<>();
+        todoLists = new ArrayList<>();
     }
 
     /**
@@ -80,6 +78,11 @@ public class MainTodoActivity extends ActionBarActivity
         fragmentManager.beginTransaction()
                 .replace(R.id.container, currentFragment)
                 .commit();
+    }
+
+    @Override
+    public void onListDeleted(int position) {
+        todoLists.remove(position);
     }
 
     public void onListAttached(int number) {
@@ -137,8 +140,8 @@ public class MainTodoActivity extends ActionBarActivity
 
     public List<TodoItem> getTodoList(int number) {
         loadTodoLists();
-        if (todoLists.get(number) == null)
-            todoLists.put(number, new ArrayList<TodoItem>());
+        while (todoLists.size() <= number)
+            todoLists.add(new ArrayList<TodoItem>());
         return todoLists.get(number);
     }
 }

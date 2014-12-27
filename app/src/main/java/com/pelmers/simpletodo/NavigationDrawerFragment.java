@@ -1,6 +1,7 @@
 package com.pelmers.simpletodo;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -106,6 +107,13 @@ public class NavigationDrawerFragment extends Fragment {
                 selectItem(position);
             }
         });
+        mDrawerListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                modifyItem(position);
+                return true;
+            }
+        });
         listNameAdapter = new ArrayAdapter<>(
                 getActionBar().getThemedContext(),
                 android.R.layout.simple_list_item_activated_1,
@@ -114,6 +122,56 @@ public class NavigationDrawerFragment extends Fragment {
         mDrawerListView.setAdapter(listNameAdapter);
         mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
         return mDrawerListView;
+    }
+
+    /**
+     * Rename/delete a list. If this list is selected and it is deleted, focus moves to the previous list.
+     * Cannot delete the last list.
+     * @param position index in the array adapter
+     */
+    private void modifyItem(final int position) {
+        TextInputClickListener confirmDeleteListener;
+        String neutralMessage;
+        // we don't allow deleting the last one
+        if (listNames.size() == 1) {
+            neutralMessage = null;
+            confirmDeleteListener = null;
+        } else {
+            neutralMessage = "Delete";
+            confirmDeleteListener = new TextInputClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, String text) {
+                    new AlertDialog.Builder(getActivity())
+                            .setMessage("Confirm delete?")
+                            .setNegativeButton("Cancel", null)
+                            .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // delete is confirmed, so do the removals
+                                    mCallbacks.onListDeleted(position);
+                                    listNames.remove(position);
+                                    // select something else if we removed what we selected
+                                    if (position < listNames.size()) {
+                                        // if it wasn't the last thing, select the next one
+                                        selectItem(position);
+                                    } else {
+                                        // otherwise select the new last one
+                                        selectItem(position - 1);
+                                    }
+                                }
+                            }).show();
+                }
+            };
+        }
+        TextInputAlertDialog.showInputAlertDialog(getActivity(), "Modify List", listNames.get(position), "Cancel", neutralMessage, "Rename",
+                null, confirmDeleteListener, new TextInputClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, String text) {
+                        // rename pressed
+                        listNames.set(position, text);
+                        listNameAdapter.notifyDataSetChanged();
+                    }
+                });
     }
 
     @Override
@@ -331,5 +389,6 @@ public class NavigationDrawerFragment extends Fragment {
          * Called when an item in the navigation drawer is selected.
          */
         void onNavigationDrawerItemSelected(int position);
+        void onListDeleted(int position);
     }
 }

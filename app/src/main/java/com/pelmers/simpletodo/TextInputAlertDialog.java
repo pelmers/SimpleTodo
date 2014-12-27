@@ -35,11 +35,7 @@ public class TextInputAlertDialog {
      * @param onPositive handle positive button press
      */
     public static void showInputAlertDialog(Activity activity, String title, String hintText, String negativeText, String positiveText, final TextInputClickListener onNegative, final TextInputClickListener onPositive) {
-        showInputAlertDialog(activity, title, hintText, negativeText, null, positiveText, new TextInputClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, String text) {
-            }
-        }, null, onPositive);
+        showInputAlertDialog(activity, title, hintText, negativeText, null, positiveText, null, null, onPositive);
     }
 
     /**
@@ -63,19 +59,22 @@ public class TextInputAlertDialog {
                 .setNegativeButton(negativeText, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        onNegative.onClick(dialog, editText.getText().toString());
+                        if (onNegative != null)
+                            onNegative.onClick(dialog, editText.getText().toString());
                     }
                 })
                 .setNeutralButton(neutralText, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        onNeutral.onClick(dialog, editText.getText().toString());
+                        if (onNeutral != null)
+                            onNeutral.onClick(dialog, editText.getText().toString());
                     }
                 })
                 .setPositiveButton(positiveText, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        onPositive.onClick(dialog, editText.getText().toString());
+                        if (onPositive != null)
+                            onPositive.onClick(dialog, editText.getText().toString());
                     }
                 })
                 .show();
