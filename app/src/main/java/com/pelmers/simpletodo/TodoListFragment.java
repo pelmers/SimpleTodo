@@ -1,19 +1,13 @@
 package com.pelmers.simpletodo;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import java.util.List;
@@ -83,25 +77,19 @@ public class TodoListFragment extends Fragment {
     /**
      * Open the dialog for adding an item, and add it to the to do list.
      */
-    public void openAddDialog() {
+    public void openItemAddDialog() {
         // pop up a text input dialog and get input from an EditText view
-        final EditText editText = new EditText(getActivity());
-        new AlertDialog.Builder(getActivity())
-                .setTitle("Add item to do")
-                .setView(editText)
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Log.d(TAG, "Cancel!");
-                    }
-                })
-                .setPositiveButton("Add", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Log.d(TAG, editText.getText().toString());
-                        addTodoItem(editText.getText().toString());
-                    }
-                })
-                .show();
+        TextInputAlertDialog.showInputAlertDialog(getActivity(), "Add item", "Add", new TextInputClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, String text) {
+                addTodoItem(text);
+            }
+        });
+    }
+
+    /**
+     * Toggle the locked status of this list.
+     */
+    public void toggleLock() {
     }
 }

@@ -1,16 +1,18 @@
 package com.pelmers.simpletodo;
 
-import android.support.v7.app.ActionBarActivity;
 import android.app.Activity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,7 +22,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
+
+import java.util.ArrayList;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -39,11 +42,15 @@ public class NavigationDrawerFragment extends Fragment {
      * expands it. This shared preference tracks this.
      */
     private static final String PREF_USER_LEARNED_DRAWER = "navigation_drawer_learned";
+    private static final String TAG = "NavigationDrawerFragment";
 
     /**
      * A pointer to the current callbacks instance (the Activity).
      */
     private NavigationDrawerCallbacks mCallbacks;
+
+    // map the position in the list to the title of the list
+    private ArrayList<String> listNames;
 
     /**
      * Helper component that ties the action bar to the navigation drawer.
@@ -57,6 +64,8 @@ public class NavigationDrawerFragment extends Fragment {
     private int mCurrentSelectedPosition = 0;
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
+    // adapter for listNames to be displayed in the drawer
+    private ArrayAdapter<String> listNameAdapter;
 
     public NavigationDrawerFragment() {
     }
@@ -89,6 +98,7 @@ public class NavigationDrawerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        listNames = loadListNames();
         mDrawerListView = (ListView) inflater.inflate(
                 R.layout.fragment_navigation_drawer, container, false);
         mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -97,17 +107,24 @@ public class NavigationDrawerFragment extends Fragment {
                 selectItem(position);
             }
         });
-        mDrawerListView.setAdapter(new ArrayAdapter<>(
+        listNameAdapter = new ArrayAdapter<>(
                 getActionBar().getThemedContext(),
                 android.R.layout.simple_list_item_activated_1,
                 android.R.id.text1,
-                new String[]{
-                        getString(R.string.title_section1),
-                        getString(R.string.title_section2),
-                        getString(R.string.title_section3),
-                }));
+                listNames);
+        mDrawerListView.setAdapter(listNameAdapter);
         mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
         return mDrawerListView;
+    }
+
+    /**
+     * Load the list names from memory.
+     * @return ArrayList of list names corresponding to order in nav bar
+     */
+    private ArrayList<String> loadListNames() {
+        ArrayList<String> listNames = new ArrayList<>();
+        listNames.add("List one");
+        return listNames;
     }
 
     public boolean isDrawerOpen() {
@@ -245,14 +262,29 @@ public class NavigationDrawerFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
-        }
-
-        if (item.getItemId() == R.id.action_lock) {
-            Toast.makeText(getActivity(), "List locked.", Toast.LENGTH_SHORT).show();
+        } else if (item.getItemId() == R.id.action_new_list) {
+            openListAddDialog();
             return true;
         }
-
         return super.onOptionsItemSelected(item);
+    }
+
+    private void openListAddDialog() {
+        TextInputAlertDialog.showInputAlertDialog(getActivity(), "New list", "Create", new TextInputClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, String text) {
+                createNewList(text);
+            }
+        });
+    }
+
+    /**
+     * Create a new to do list with the given title
+     * @param title of the new list
+     */
+    private void createNewList(String title) {
+        listNames.add(title);
+        listNameAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -268,6 +300,16 @@ public class NavigationDrawerFragment extends Fragment {
 
     private ActionBar getActionBar() {
         return ((ActionBarActivity) getActivity()).getSupportActionBar();
+    }
+
+    /**
+     * Get the title of the list at the number position on the nav drawer.
+     * @param number position of the list
+     * @return the list's title
+     */
+    public CharSequence getListTitle(int number) {
+        Log.d(TAG, Integer.toString(number));
+        return listNames.get(number);
     }
 
     /**

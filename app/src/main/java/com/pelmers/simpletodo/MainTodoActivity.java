@@ -1,12 +1,14 @@
 package com.pelmers.simpletodo;
 
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.support.v4.widget.DrawerLayout;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,6 +19,7 @@ import java.util.Map;
 public class MainTodoActivity extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
+    private static final String TAG = "MainTodoActivity";
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
@@ -38,11 +41,18 @@ public class MainTodoActivity extends ActionBarActivity
         // Load up the todoLists from storage
         loadTodoLists();
         setContentView(R.layout.activity_main_todo);
+        mTitle = getTitle();
+        initializeDrawer();
+    }
 
+    /**
+     * Initialize the navigation drawer.
+     */
+    private void initializeDrawer() {
+        if (mNavigationDrawerFragment != null)
+            return;
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
-        mTitle = getTitle();
-
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
@@ -60,29 +70,19 @@ public class MainTodoActivity extends ActionBarActivity
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getSupportFragmentManager();
-        // start numbering sections from 1
-        int section = position + 1;
-        if (todoLists.get(section) == null)
-            todoLists.put(section, new ArrayList<TodoItem>());
-        List<TodoItem> selectedList = todoLists.get(section);
-        currentFragment = TodoListFragment.newInstance(section, selectedList);
+        if (todoLists.get(position) == null)
+            todoLists.put(position, new ArrayList<TodoItem>());
+        List<TodoItem> selectedList = todoLists.get(position);
+        currentFragment = TodoListFragment.newInstance(position, selectedList);
         fragmentManager.beginTransaction()
                 .replace(R.id.container, currentFragment)
                 .commit();
     }
 
     public void onSectionAttached(int number) {
-        switch (number) {
-            case 1:
-                mTitle = getString(R.string.title_section1);
-                break;
-            case 2:
-                mTitle = getString(R.string.title_section2);
-                break;
-            case 3:
-                mTitle = getString(R.string.title_section3);
-                break;
-        }
+        if (mNavigationDrawerFragment != null)
+            mTitle = mNavigationDrawerFragment.getListTitle(number);
+        setTitle(mTitle);
     }
 
     public void restoreActionBar() {
@@ -90,7 +90,6 @@ public class MainTodoActivity extends ActionBarActivity
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setTitle(mTitle);
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -112,14 +111,16 @@ public class MainTodoActivity extends ActionBarActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         } else if (id == R.id.action_add) {
-            currentFragment.openAddDialog();
+            currentFragment.openItemAddDialog();
+            return true;
+        } else if (item.getItemId() == R.id.action_lock) {
+            Toast.makeText(this, "List locked.", Toast.LENGTH_SHORT).show();
+            currentFragment.toggleLock();
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 }
