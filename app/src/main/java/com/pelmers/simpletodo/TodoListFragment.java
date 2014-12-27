@@ -7,10 +7,12 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.GestureDetectorCompat;
 import android.text.SpannableString;
 import android.text.style.StyleSpan;
-import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -36,6 +38,9 @@ public class TodoListFragment extends Fragment {
 
     // is the list locked?
     private boolean isLocked;
+
+    // use to detect gestures
+    private GestureDetectorCompat detector;
 
     /**
      * Returns a new instance of this fragment for the given section
@@ -83,6 +88,22 @@ public class TodoListFragment extends Fragment {
                 }
             }
         });
+        todoListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                if (isLocked())
+                    return false;
+                openItemModifyDialog(position);
+                return true;
+            }
+        });
+        rootView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                detector.onTouchEvent(event);
+                return true;
+            }
+        });
         return rootView;
     }
 
@@ -91,7 +112,6 @@ public class TodoListFragment extends Fragment {
      * @param textView to mark completed
      */
     private void markComplete(TextView textView) {
-        Log.d(TAG, textView.getTextColors().toString());
         textView.setPaintFlags(textView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         SpannableString spannableString = new SpannableString(textView.getText());
         spannableString.setSpan(new StyleSpan(Typeface.ITALIC), 0, spannableString.length(), 0);
@@ -122,6 +142,7 @@ public class TodoListFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        detector = new GestureDetectorCompat(activity, new GestureListener(this));
         MainTodoActivity mainActivity = (MainTodoActivity) activity;
         int number = getArguments().getInt(ARG_SECTION_NUMBER);
         setTodoItems(mainActivity.getTodoList(number));
@@ -145,6 +166,24 @@ public class TodoListFragment extends Fragment {
         });
     }
 
+    public void openItemModifyDialog(final int position) {
+        final boolean wasCompleted = todoItems.get(position).isCompleted();
+        TextInputAlertDialog.showInputAlertDialog(getActivity(), "Modify item",
+                todoItems.get(position).getText(), "Cancel", "Modify",
+                new TextInputClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, String text) {
+                    }
+                }, new TextInputClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, String text) {
+                        todoItems.set(position, new TodoItem(text));
+                        todoItems.get(position).setCompleted(wasCompleted);
+                        todoListAdapter.notifyDataSetChanged();
+                    }
+                });
+    }
+
     /**
      * Toggle the locked status of this list.
      */
@@ -159,4 +198,16 @@ public class TodoListFragment extends Fragment {
         return isLocked;
     }
 
+    class GestureListener extends GestureDetector.SimpleOnGestureListener {
+        private TodoListFragment that;
+        GestureListener(TodoListFragment that) {
+            this.that = that;
+        }
+
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            that.openItemAddDialog();
+            return true;
+        }
+    }
 }
