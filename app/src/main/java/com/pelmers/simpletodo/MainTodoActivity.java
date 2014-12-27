@@ -66,6 +66,12 @@ public class MainTodoActivity extends ActionBarActivity
         todoLists = new HashMap<>();
     }
 
+    /**
+     * Save current state of lists to device memory.
+     */
+    private void saveTodoLists() {
+    }
+
     @Override
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
@@ -91,9 +97,6 @@ public class MainTodoActivity extends ActionBarActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (!mNavigationDrawerFragment.isDrawerOpen()) {
-            // Only show items in the action bar relevant to this screen
-            // if the drawer is not showing. Otherwise, let the drawer
-            // decide what to show in the action bar.
             getMenuInflater().inflate(R.menu.main_todo, menu);
             restoreActionBar();
             return true;
@@ -103,9 +106,6 @@ public class MainTodoActivity extends ActionBarActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
         if (id == R.id.action_settings) {
@@ -119,6 +119,12 @@ public class MainTodoActivity extends ActionBarActivity
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        saveTodoLists();
     }
 
     public List<TodoItem> getTodoList(int number) {

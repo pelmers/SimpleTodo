@@ -41,6 +41,10 @@ public class TodoListFragment extends Fragment {
     public TodoListFragment() {
     }
 
+    /**
+     * Create the views for the UI. This happens after onAttach
+     * @return view for this fragment
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -60,6 +64,11 @@ public class TodoListFragment extends Fragment {
         todoListAdapter.notifyDataSetChanged();
     }
 
+    /**
+     * The first stage in the fragment creation process.
+     * In this method we let the activity know we're created and ask for the correct list.
+     * @param activity the activity we attach to
+     */
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);

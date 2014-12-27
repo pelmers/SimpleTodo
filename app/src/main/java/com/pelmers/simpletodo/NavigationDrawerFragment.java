@@ -117,6 +117,12 @@ public class NavigationDrawerFragment extends Fragment {
         return mDrawerListView;
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        saveListNames(listNames);
+    }
+
     /**
      * Load the list names from memory.
      * @return ArrayList of list names corresponding to order in nav bar
@@ -125,6 +131,13 @@ public class NavigationDrawerFragment extends Fragment {
         ArrayList<String> listNames = new ArrayList<>();
         listNames.add("List one");
         return listNames;
+    }
+
+    /**
+     * Save list names to the device.
+     * @param listNames names of lists to save.
+     */
+    private void saveListNames(ArrayList<String> listNames) {
     }
 
     public boolean isDrawerOpen() {
