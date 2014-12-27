@@ -35,8 +35,28 @@ public class TextInputAlertDialog {
      * @param onPositive handle positive button press
      */
     public static void showInputAlertDialog(Activity activity, String title, String hintText, String negativeText, String positiveText, final TextInputClickListener onNegative, final TextInputClickListener onPositive) {
+        showInputAlertDialog(activity, title, hintText, negativeText, null, positiveText, new TextInputClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, String text) {
+            }
+        }, null, onPositive);
+    }
+
+    /**
+     * Show an alert dialog that takes some text input.
+     * @param activity the current activity
+     * @param title the title of the dialog
+     * @param hintText default text field contents
+     * @param negativeText negative button label
+     * @param neutralText neutral button label
+     * @param positiveText positive button label
+     * @param onNeutral handle neutral press
+     * @param onNegative handle negative button press
+     * @param onPositive handle positive button press
+     */
+    public static void showInputAlertDialog(Activity activity, String title, String hintText, String negativeText, String neutralText, String positiveText, final TextInputClickListener onNegative, final TextInputClickListener onNeutral, final TextInputClickListener onPositive) {
         final EditText editText = new EditText(activity);
-        editText.setHint(hintText);
+        editText.setText(hintText);
         new AlertDialog.Builder(activity)
                 .setTitle(title)
                 .setView(editText)
@@ -44,6 +64,12 @@ public class TextInputAlertDialog {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         onNegative.onClick(dialog, editText.getText().toString());
+                    }
+                })
+                .setNeutralButton(neutralText, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        onNeutral.onClick(dialog, editText.getText().toString());
                     }
                 })
                 .setPositiveButton(positiveText, new DialogInterface.OnClickListener() {

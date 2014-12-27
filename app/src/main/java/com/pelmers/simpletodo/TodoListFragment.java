@@ -169,10 +169,16 @@ public class TodoListFragment extends Fragment {
     public void openItemModifyDialog(final int position) {
         final boolean wasCompleted = todoItems.get(position).isCompleted();
         TextInputAlertDialog.showInputAlertDialog(getActivity(), "Modify item",
-                todoItems.get(position).getText(), "Cancel", "Modify",
+                todoItems.get(position).getText(), "Cancel", "Delete", "Modify",
                 new TextInputClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, String text) {
+                    }
+                }, new TextInputClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, String text) {
+                        todoItems.remove(position);
+                        todoListAdapter.notifyDataSetChanged();
                     }
                 }, new TextInputClickListener() {
                     @Override
@@ -208,6 +214,11 @@ public class TodoListFragment extends Fragment {
         public boolean onDoubleTap(MotionEvent e) {
             that.openItemAddDialog();
             return true;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+            that.openItemAddDialog();
         }
     }
 }
