@@ -1,12 +1,19 @@
 package com.pelmers.simpletodo;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import java.util.List;
@@ -17,6 +24,10 @@ import java.util.List;
 public class TodoListFragment extends Fragment {
     // section number of a fragment
     private static final String ARG_SECTION_NUMBER = "section_number";
+
+    private static final String TAG = "TodoListFragment";
+
+    private ArrayAdapter<TodoItem> todoListAdapter;
 
     // the items on this list fragment
     private List<TodoItem> todoItems;
@@ -42,14 +53,20 @@ public class TodoListFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main_todo, container, false);
         ListView todoListView = (ListView) rootView.findViewById(R.id.currentTodoList);
-        int currentSection = getArguments().getInt(ARG_SECTION_NUMBER);
         // if this is our first time here, initialize the list
-        todoListView.setAdapter(new ArrayAdapter<>(
+        todoListAdapter = new ArrayAdapter<>(
                 getActivity(),
                 android.R.layout.simple_list_item_activated_1,
                 android.R.id.text1,
-                todoItems));
+                todoItems);
+        todoListView.setAdapter(todoListAdapter);
+
         return rootView;
+    }
+
+    private void addTodoItem(String itemName) {
+        todoItems.add(new TodoItem(itemName));
+        todoListAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -61,5 +78,30 @@ public class TodoListFragment extends Fragment {
 
     public void setTodoItems(List<TodoItem> todoItems) {
         this.todoItems = todoItems;
+    }
+
+    /**
+     * Open the dialog for adding an item, and add it to the to do list.
+     */
+    public void openAddDialog() {
+        // pop up a text input dialog and get input from an EditText view
+        final EditText editText = new EditText(getActivity());
+        new AlertDialog.Builder(getActivity())
+                .setTitle("Add item to do")
+                .setView(editText)
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Log.d(TAG, "Cancel!");
+                    }
+                })
+                .setPositiveButton("Add", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Log.d(TAG, editText.getText().toString());
+                        addTodoItem(editText.getText().toString());
+                    }
+                })
+                .show();
     }
 }

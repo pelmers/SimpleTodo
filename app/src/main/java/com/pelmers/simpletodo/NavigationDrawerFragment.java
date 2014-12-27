@@ -247,8 +247,8 @@ public class NavigationDrawerFragment extends Fragment {
             return true;
         }
 
-        if (item.getItemId() == R.id.action_example) {
-            Toast.makeText(getActivity(), "Example action.", Toast.LENGTH_SHORT).show();
+        if (item.getItemId() == R.id.action_lock) {
+            Toast.makeText(getActivity(), "List locked.", Toast.LENGTH_SHORT).show();
             return true;
         }
 

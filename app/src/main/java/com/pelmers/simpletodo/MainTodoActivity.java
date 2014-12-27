@@ -29,6 +29,8 @@ public class MainTodoActivity extends ActionBarActivity
 
     // map of index in the nav bar to the list of items in the list
     private Map<Integer, List<TodoItem>> todoLists;
+    // the currently selected to do list fragment
+    private TodoListFragment currentFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,10 +65,9 @@ public class MainTodoActivity extends ActionBarActivity
         if (todoLists.get(section) == null)
             todoLists.put(section, new ArrayList<TodoItem>());
         List<TodoItem> selectedList = todoLists.get(section);
-        for (int i = -1; i < section; i++)
-            selectedList.add(new TodoItem(Integer.toString(i)));
+        currentFragment = TodoListFragment.newInstance(section, selectedList);
         fragmentManager.beginTransaction()
-                .replace(R.id.container, TodoListFragment.newInstance(section, selectedList))
+                .replace(R.id.container, currentFragment)
                 .commit();
     }
 
@@ -113,6 +114,9 @@ public class MainTodoActivity extends ActionBarActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            return true;
+        } else if (id == R.id.action_add) {
+            currentFragment.openAddDialog();
             return true;
         }
 
