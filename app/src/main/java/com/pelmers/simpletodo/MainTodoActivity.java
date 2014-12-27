@@ -107,15 +107,19 @@ public class MainTodoActivity extends ActionBarActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-
-        if (id == R.id.action_settings) {
-            return true;
-        } else if (id == R.id.action_add) {
+        if (id == R.id.action_add) {
             currentFragment.openItemAddDialog();
             return true;
         } else if (item.getItemId() == R.id.action_lock) {
-            Toast.makeText(this, "List locked.", Toast.LENGTH_SHORT).show();
             currentFragment.toggleLock();
+            if (currentFragment.isLocked()) {
+                Toast.makeText(this, "List locked.", Toast.LENGTH_SHORT).show();
+                item.setTitle(getString(R.string.action_unlock));
+            }
+            else {
+                Toast.makeText(this, "List unlocked.", Toast.LENGTH_SHORT).show();
+                item.setTitle(getString(R.string.action_lock));
+            }
             return true;
         }
         return super.onOptionsItemSelected(item);

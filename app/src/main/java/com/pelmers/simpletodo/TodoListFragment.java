@@ -33,6 +33,9 @@ public class TodoListFragment extends Fragment {
     // the items on this list fragment
     private List<TodoItem> todoItems;
 
+    // is the list locked?
+    private boolean isLocked;
+
     /**
      * Returns a new instance of this fragment for the given section
      * number.
@@ -66,6 +69,9 @@ public class TodoListFragment extends Fragment {
         todoListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // don't do anything if the list is locked.
+                if (isLocked())
+                    return;
                 TodoItem item = todoItems.get(position);
                 item.setCompleted(!item.isCompleted());
                 TextView textView = (TextView) view;
@@ -141,5 +147,14 @@ public class TodoListFragment extends Fragment {
      * Toggle the locked status of this list.
      */
     public void toggleLock() {
+        isLocked = !isLocked;
     }
+
+    /**
+     * @return whether fragment is locked (cannot be edited)
+     */
+    public boolean isLocked() {
+        return isLocked;
+    }
+
 }
