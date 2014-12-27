@@ -2,13 +2,20 @@ package com.pelmers.simpletodo;
 
 import android.app.Activity;
 import android.content.DialogInterface;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.List;
 
@@ -52,11 +59,46 @@ public class TodoListFragment extends Fragment {
         ListView todoListView = (ListView) rootView.findViewById(R.id.currentTodoList);
         todoListAdapter = new ArrayAdapter<>(
                 getActivity(),
-                android.R.layout.simple_list_item_activated_1,
+                android.R.layout.simple_list_item_1,
                 android.R.id.text1,
                 todoItems);
         todoListView.setAdapter(todoListAdapter);
+        todoListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                TodoItem item = todoItems.get(position);
+                item.setCompleted(!item.isCompleted());
+                TextView textView = (TextView) view;
+                if (item.isCompleted()) {
+                    markComplete(textView);
+                } else {
+                    markIncomplete(textView);
+                }
+            }
+        });
         return rootView;
+    }
+
+    /**
+     * Indicate completion of a text view
+     * @param textView to mark completed
+     */
+    private void markComplete(TextView textView) {
+        textView.setPaintFlags(textView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        SpannableString spannableString = new SpannableString(textView.getText());
+        spannableString.setSpan(new StyleSpan(Typeface.ITALIC), 0, spannableString.length(), 0);
+        textView.setTextColor(Color.LTGRAY);
+        textView.setText(spannableString);
+    }
+
+    /**
+     * Mark a text view as incomplete (should undo what markComplete does)
+     * @param textView to mark incomplete
+     */
+    private void markIncomplete(TextView textView) {
+        textView.setPaintFlags(textView.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+        textView.setTextColor(Color.BLACK);
+        textView.setText(textView.getText().toString());
     }
 
     private void addTodoItem(String itemName) {
