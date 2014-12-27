@@ -12,7 +12,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -262,10 +261,10 @@ public class NavigationDrawerFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        // If the drawer is open, show the global app actions in the action bar. See also
+        // If the drawer is open, show the navigation app actions in the action bar. See also
         // showGlobalContextActionBar, which controls the top-left area of the action bar.
         if (mDrawerLayout != null && isDrawerOpen()) {
-            inflater.inflate(R.menu.global, menu);
+            inflater.inflate(R.menu.navigation, menu);
             showGlobalContextActionBar();
         }
         super.onCreateOptionsMenu(menu, inflater);
@@ -301,7 +300,7 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     /**
-     * Per the navigation drawer design guidelines, updates the action bar to show the global app
+     * Per the navigation drawer design guidelines, updates the action bar to show the navigation app
      * 'context', rather than just what's in the current screen.
      */
     private void showGlobalContextActionBar() {
@@ -321,7 +320,6 @@ public class NavigationDrawerFragment extends Fragment {
      * @return the list's title
      */
     public CharSequence getListTitle(int number) {
-        Log.d(TAG, Integer.toString(number));
         return listNames.get(number);
     }
 

@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.SpannableString;
 import android.text.style.StyleSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,7 +63,7 @@ public class TodoListFragment extends Fragment {
         ListView todoListView = (ListView) rootView.findViewById(R.id.currentTodoList);
         todoListAdapter = new ArrayAdapter<>(
                 getActivity(),
-                android.R.layout.simple_list_item_1,
+                R.layout.todo_item,
                 android.R.id.text1,
                 todoItems);
         todoListView.setAdapter(todoListAdapter);
@@ -90,6 +91,7 @@ public class TodoListFragment extends Fragment {
      * @param textView to mark completed
      */
     private void markComplete(TextView textView) {
+        Log.d(TAG, textView.getTextColors().toString());
         textView.setPaintFlags(textView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         SpannableString spannableString = new SpannableString(textView.getText());
         spannableString.setSpan(new StyleSpan(Typeface.ITALIC), 0, spannableString.length(), 0);

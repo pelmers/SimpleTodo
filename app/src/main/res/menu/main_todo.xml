@@ -1,8 +1,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:SimpleTodo="http://schemas.android.com/apk/res-auto"
     tools:context="com.pelmers.simpletodo.MainTodoActivity">
     <item android:id="@+id/action_add" android:title="@string/action_add"
-        android:showAsAction="withText|ifRoom" />
-    <item android:id="@+id/action_lock" android:title="@string/action_lock"
-        android:showAsAction="withText|ifRoom" />
+        SimpleTodo:showAsAction="ifRoom"
+        android:showAsAction="ifRoom"
+        android:icon="@drawable/ic_action_new" />
+    <item android:id="@+id/action_toggle_lock" android:title="@string/action_lock"
+        SimpleTodo:showAsAction="ifRoom"
+        android:showAsAction="ifRoom"
+        android:icon="@drawable/ic_action_secure" />
 </menu>

@@ -1,4 +1,0 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/action_new_list" android:title="@string/action_new_list"
-        android:showAsAction="withText|ifRoom" />
-</menu>

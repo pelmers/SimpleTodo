@@ -96,6 +96,8 @@ public class MainTodoActivity extends ActionBarActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        // if the drawer is open, let it do the action bar
+        // otherwise the activity will handle it
         if (!mNavigationDrawerFragment.isDrawerOpen()) {
             getMenuInflater().inflate(R.menu.main_todo, menu);
             restoreActionBar();
@@ -110,14 +112,16 @@ public class MainTodoActivity extends ActionBarActivity
         if (id == R.id.action_add) {
             currentFragment.openItemAddDialog();
             return true;
-        } else if (item.getItemId() == R.id.action_lock) {
+        } else if (item.getItemId() == R.id.action_toggle_lock) {
             currentFragment.toggleLock();
             if (currentFragment.isLocked()) {
                 Toast.makeText(this, "List locked.", Toast.LENGTH_SHORT).show();
+                item.setIcon(R.drawable.ic_action_not_secure);
                 item.setTitle(getString(R.string.action_unlock));
             }
             else {
                 Toast.makeText(this, "List unlocked.", Toast.LENGTH_SHORT).show();
+                item.setIcon(R.drawable.ic_action_secure);
                 item.setTitle(getString(R.string.action_lock));
             }
             return true;
