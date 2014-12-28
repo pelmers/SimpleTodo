@@ -32,7 +32,7 @@ public class TodoAdapter extends ArrayAdapter<TodoItem> {
     }
 
     /**
-     * Indicate completion of a text view
+     * Modify the style of a text view to indicate completion
      * @param textView to mark completed
      */
     public void markComplete(TextView textView) {

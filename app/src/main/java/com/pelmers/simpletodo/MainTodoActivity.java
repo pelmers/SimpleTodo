@@ -20,7 +20,7 @@ import java.util.List;
 
 
 public class MainTodoActivity extends ActionBarActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+        implements NavigationDrawerFragment.NavigationDrawerCallbacks, TodoListFragment.TodoListCallbacks {
 
     private static final String TAG = "MainTodoActivity";
     private static final String FILENAME = "TodoLists";

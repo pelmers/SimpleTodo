@@ -17,7 +17,7 @@ import android.widget.TextView;
 import java.util.List;
 
 /**
- * A fragment containing a the todolist
+ * A fragment containing a todolist
  */
 public class TodoListFragment extends Fragment {
     // section number of a fragment
@@ -25,6 +25,7 @@ public class TodoListFragment extends Fragment {
 
     private static final String TAG = "TodoListFragment";
 
+    // the adapter for the fragment's ListView
     private TodoAdapter todoListAdapter;
 
     // the items on this list fragment
@@ -52,7 +53,7 @@ public class TodoListFragment extends Fragment {
     }
 
     /**
-     * Create the views for the UI. This happens after onAttach
+     * Create the views for the UI and bind touch listeners. This happens after onAttach.
      * @return view for this fragment
      */
     @Override
@@ -90,6 +91,7 @@ public class TodoListFragment extends Fragment {
         rootView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                // Pass touch events outside the ListView to the gesture detector
                 detector.onTouchEvent(event);
                 return true;
             }
@@ -98,6 +100,10 @@ public class TodoListFragment extends Fragment {
     }
 
 
+    /**
+     * Add an item to this list with the given name.
+     * @param itemName name of the item
+     */
     private void addTodoItem(String itemName) {
         todoItems.add(new TodoItem(itemName));
         todoListAdapter.notifyDataSetChanged();
@@ -112,10 +118,10 @@ public class TodoListFragment extends Fragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         detector = new GestureDetectorCompat(activity, new GestureListener(this));
-        MainTodoActivity mainActivity = (MainTodoActivity) activity;
+        TodoListCallbacks activityCallbacks = (TodoListCallbacks) activity;
         int number = getArguments().getInt(ARG_SECTION_NUMBER);
-        setTodoItems(mainActivity.getTodoList(number));
-        mainActivity.onListAttached(number);
+        setTodoItems(activityCallbacks.getTodoList(number));
+        activityCallbacks.onListAttached(number);
     }
 
     public void setTodoItems(List<TodoItem> todoItems) {
@@ -126,7 +132,6 @@ public class TodoListFragment extends Fragment {
      * Open the dialog for adding an item, and add it to the to do list.
      */
     public void openItemAddDialog() {
-        // pop up a text input dialog and get input from an EditText view
         TextInputAlertDialog.showInputAlertDialog(getActivity(), "Add item", "Add", new TextInputClickListener() {
             @Override
             public void onClick(DialogInterface dialog, String text) {
@@ -135,6 +140,10 @@ public class TodoListFragment extends Fragment {
         });
     }
 
+    /**
+     * Open a dialog for modifying an item, allowing rename and deletion.
+     * @param position which to modify
+     */
     public void openItemModifyDialog(final int position) {
         final boolean wasCompleted = todoItems.get(position).isCompleted();
         TextInputAlertDialog.showInputAlertDialog(getActivity(), "Modify item",
@@ -173,7 +182,10 @@ public class TodoListFragment extends Fragment {
         return isLocked;
     }
 
-    class GestureListener extends GestureDetector.SimpleOnGestureListener {
+    /**
+     * Gesture Listener that allows adding items on long press and double tap.
+     */
+    private class GestureListener extends GestureDetector.SimpleOnGestureListener {
         private TodoListFragment that;
         GestureListener(TodoListFragment that) {
             this.that = that;
@@ -181,13 +193,35 @@ public class TodoListFragment extends Fragment {
 
         @Override
         public boolean onDoubleTap(MotionEvent e) {
+            if (isLocked())
+                return false;
             that.openItemAddDialog();
             return true;
         }
 
         @Override
         public void onLongPress(MotionEvent e) {
+            if (isLocked())
+                return;
             that.openItemAddDialog();
         }
+    }
+
+    /**
+     * The interface an activity should implement to use this fragment.
+     */
+    public static interface TodoListCallbacks {
+        /**
+         * Called once on creation to get a reference to the list for this fragment.
+         * @param number which list to get
+         * @return list of items on this fragment's list
+         */
+        List<TodoItem> getTodoList(int number);
+
+        /**
+         * Callback for when this fragment is attached.
+         * @param number the list number associated with this fragment.
+         */
+        void onListAttached(int number);
     }
 }
