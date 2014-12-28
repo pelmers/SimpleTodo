@@ -1,5 +1,6 @@
 package com.pelmers.simpletodo;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
@@ -9,6 +10,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +23,7 @@ public class MainTodoActivity extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     private static final String TAG = "MainTodoActivity";
+    private static final String FILENAME = "TodoLists";
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
@@ -56,18 +63,39 @@ public class MainTodoActivity extends ActionBarActivity
     }
 
     /**
-     * Load up lists from the device memory
+     * Load up lists from the device memory if they haven't already been loaded
      */
     private void loadTodoLists() {
         if (todoLists != null)
             return;
-        todoLists = new ArrayList<>();
+        try {
+            FileInputStream inputStream = openFileInput(FILENAME);
+            ObjectInputStream objectStream = new ObjectInputStream(inputStream);
+            //noinspection unchecked
+            todoLists = (List<List<TodoItem>>) objectStream.readObject();
+            objectStream.close(); inputStream.close();
+        } catch (IOException e) {
+            // assume that if we can't load that is because we haven't saved yet
+            todoLists = new ArrayList<>();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error lists", Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
      * Save current state of lists to device memory.
      */
     private void saveTodoLists() {
+        try {
+            FileOutputStream outputStream = openFileOutput(FILENAME, Context.MODE_PRIVATE);
+            ObjectOutputStream objectStream = new ObjectOutputStream(outputStream);
+            objectStream.writeObject(todoLists);
+            objectStream.close(); outputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error saving lists", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

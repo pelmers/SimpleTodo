@@ -2,21 +2,15 @@ package com.pelmers.simpletodo;
 
 import android.app.Activity;
 import android.content.DialogInterface;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GestureDetectorCompat;
-import android.text.SpannableString;
-import android.text.style.StyleSpan;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -31,7 +25,7 @@ public class TodoListFragment extends Fragment {
 
     private static final String TAG = "TodoListFragment";
 
-    private ArrayAdapter<TodoItem> todoListAdapter;
+    private TodoAdapter todoListAdapter;
 
     // the items on this list fragment
     private List<TodoItem> todoItems;
@@ -66,11 +60,7 @@ public class TodoListFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main_todo, container, false);
         ListView todoListView = (ListView) rootView.findViewById(R.id.currentTodoList);
-        todoListAdapter = new ArrayAdapter<>(
-                getActivity(),
-                R.layout.todo_item,
-                android.R.id.text1,
-                todoItems);
+        todoListAdapter = new TodoAdapter(getActivity(), R.layout.todo_item, android.R.id.text1, todoItems);
         todoListView.setAdapter(todoListAdapter);
         todoListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -82,9 +72,9 @@ public class TodoListFragment extends Fragment {
                 item.setCompleted(!item.isCompleted());
                 TextView textView = (TextView) view;
                 if (item.isCompleted()) {
-                    markComplete(textView);
+                    todoListAdapter.markComplete(textView);
                 } else {
-                    markIncomplete(textView);
+                    todoListAdapter.markIncomplete(textView);
                 }
             }
         });
@@ -107,27 +97,6 @@ public class TodoListFragment extends Fragment {
         return rootView;
     }
 
-    /**
-     * Indicate completion of a text view
-     * @param textView to mark completed
-     */
-    private void markComplete(TextView textView) {
-        textView.setPaintFlags(textView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-        SpannableString spannableString = new SpannableString(textView.getText());
-        spannableString.setSpan(new StyleSpan(Typeface.ITALIC), 0, spannableString.length(), 0);
-        textView.setTextColor(Color.LTGRAY);
-        textView.setText(spannableString);
-    }
-
-    /**
-     * Mark a text view as incomplete (should undo what markComplete does)
-     * @param textView to mark incomplete
-     */
-    private void markIncomplete(TextView textView) {
-        textView.setPaintFlags(textView.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
-        textView.setTextColor(Color.BLACK);
-        textView.setText(textView.getText().toString());
-    }
 
     private void addTodoItem(String itemName) {
         todoItems.add(new TodoItem(itemName));

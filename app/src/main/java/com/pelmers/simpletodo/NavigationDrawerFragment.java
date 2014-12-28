@@ -2,6 +2,7 @@ package com.pelmers.simpletodo;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -22,7 +23,13 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 /**
@@ -36,6 +43,9 @@ public class NavigationDrawerFragment extends Fragment {
      * Remember the position of the selected item.
      */
     private static final String STATE_SELECTED_POSITION = "selected_navigation_drawer_position";
+
+    // The filename where we will store list names
+    private static final String FILENAME = "ListNames";
 
     /**
      * Per the design guidelines, you should show the drawer on launch until the user manually
@@ -98,7 +108,7 @@ public class NavigationDrawerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        listNames = loadListNames();
+        loadListNames();
         mDrawerListView = (ListView) inflater.inflate(
                 R.layout.fragment_navigation_drawer, container, false);
         mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -175,26 +185,44 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        saveListNames(listNames);
+    public void onPause() {
+        super.onPause();
+        saveListNames();
     }
 
     /**
      * Load the list names from memory.
-     * @return ArrayList of list names corresponding to order in nav bar
      */
-    private ArrayList<String> loadListNames() {
-        ArrayList<String> listNames = new ArrayList<>();
-        listNames.add("List one");
-        return listNames;
+    private void loadListNames() {
+        try {
+            FileInputStream inputStream = getActivity().openFileInput(FILENAME);
+            ObjectInputStream objectStream = new ObjectInputStream(inputStream);
+            //noinspection unchecked
+            listNames = (ArrayList<String>) objectStream.readObject();
+            objectStream.close(); inputStream.close();
+        } catch (IOException e) {
+            // assume that if we can't load that is because we haven't saved yet
+            listNames = new ArrayList<>();
+            listNames.add("first list");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            Toast.makeText(getActivity(), "Error reading list names", Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
      * Save list names to the device.
-     * @param listNames names of lists to save.
      */
-    private void saveListNames(ArrayList<String> listNames) {
+    private void saveListNames() {
+        try {
+            FileOutputStream outputStream = getActivity().openFileOutput(FILENAME, Context.MODE_PRIVATE);
+            ObjectOutputStream objectStream = new ObjectOutputStream(outputStream);
+            objectStream.writeObject(listNames);
+            objectStream.close(); outputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(getActivity(), "Error saving list names", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public boolean isDrawerOpen() {
